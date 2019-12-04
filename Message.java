@@ -6,6 +6,10 @@
 package CS3800FinalProject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -25,15 +29,14 @@ public class Message implements Serializable {
     private int type;
     private User user = null;
     private String payload = null;
+    private long timestamp;
+    private List<Message> messageHistory = null;
 
-    public Message(int type, String payload) {
-        this(type, null, payload);
-    }
-
-    public Message(int type, User user, String payload) {
+    public Message(int type, User user, long timestamp, String payload) {
         this.type = type;
         this.user = user;
         this.payload = payload;
+        this.timestamp = timestamp;
     }
 
     public int getType() {
@@ -58,5 +61,21 @@ public class Message implements Serializable {
 
     public void setPayLoad(String payload) {
         this.payload = payload;
+    }
+
+    public long getTimestamp() {
+        return this.timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public List<Message> getMessageHistory() {
+        return messageHistory;
+    }
+
+    public void setMessageHistory(List<Message> messageHistory) {
+        this.messageHistory = messageHistory;
     }
 }

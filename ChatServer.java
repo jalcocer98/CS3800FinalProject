@@ -23,7 +23,8 @@ public class ChatServer {
     private static final int portNumber = 5000;
 
     private int serverPort;
-    private Map<String, ClientThread> clientMap;
+    private Map<String, ClientThread> clientMap = null;
+    private ArrayList<Message> messageHistory = null;
 //    private List<ClientThread> clients;
 
     public static void main(String[] args){
@@ -41,6 +42,10 @@ public class ChatServer {
     
     public Map<String, ClientThread> getClientMap(){
         return clientMap;
+    }
+    
+    public List<Message> getMessageHistory(){
+        return messageHistory;
     }
 
     private void startServer(){
@@ -61,12 +66,9 @@ public class ChatServer {
             try {
                 Socket socket = serverSocket.accept();
                 System.out.println("accepts : " + socket.getRemoteSocketAddress());
-                UUID clientUUID = UUID.randomUUID();
-                ClientThread client = new ClientThread(this, clientUUID.toString(), socket);
+                ClientThread client = new ClientThread(this, socket);
                 Thread thread = new Thread(client);
                 thread.start();
-//                clients.add(client);
-//                clientMap.put(clientUUID.toString(),client);
                 
             } catch (IOException ex){
                 System.out.println("Accept failed on : "+serverPort);
