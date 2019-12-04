@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package CS3800FinalProject;
 
 /**
  *
@@ -26,23 +25,25 @@ public class ClientThread implements Runnable {
     private Socket socket;
     private ChatServer server;
     private Message msg = null;
-    private static ObjectInputStream in = null;
-    private static ObjectOutputStream out = null;
+    private ObjectInputStream in = null;
+    private ObjectOutputStream out = null;
 
     public ClientThread(ChatServer server, Socket socket) {
         this.server = server;
         this.socket = socket;
     }
 
-    private ObjectOutputStream getOutputStream() {
-        return out;
+    public ObjectOutputStream getOutputStream() {
+        return this.out;
     }
 
     @Override
     public void run() {
         try {
-            in = new ObjectInputStream(socket.getInputStream());
+            this.in = new ObjectInputStream(socket.getInputStream());
+            this.out = new ObjectOutputStream(socket.getOutputStream());
             while (!socket.isClosed()) {
+                System.out.println("reading in from: " + in);
                 msg = (Message) in.readObject();
                 clientAction(msg);
             }
@@ -64,22 +65,23 @@ public class ClientThread implements Runnable {
                 clientMsg1 = new Message(Message.WELCOME, msg.getUser(), timestamp.getTime(), "Welcome " + msg.getUser().getName());
                 server.getClientMap().put(msg.getUser().getUUID(), this);
                 clientMsg2 = new Message(Message.USER_JOINED, msg.getUser(), timestamp.getTime(), msg.getUser() + " has joined the chat");
-                clientMsg1.setMessageHistory(server.getMessageHistory());
-                clientMsg2.setMessageHistory(server.getMessageHistory());
+                // clientMsg1.setMessageHistory(server.getMessageHistory());
+                // clientMsg2.setMessageHistory(server.getMessageHistory());
                 inform(msg,clientMsg1, clientMsg2);
                 break;
             case Message.BROADCAST_MSG:
-                server.getMessageHistory().add(msg);
-                sortMessages(server.getMessageHistory());
+                System.out.println("broadcasting message");
+                //server.getMessageHistory().add(msg);
+                //sortMessages(server.getMessageHistory());
                 clientMsg1 = new Message(Message.NEW_MESSAGE, msg.getUser(), timestamp.getTime(), msg.getPayLoad());
                 clientMsg2 = new Message(Message.NEW_MESSAGE, msg.getUser(), timestamp.getTime(), msg.getPayLoad());
-                clientMsg1.setMessageHistory(server.getMessageHistory());
-                clientMsg2.setMessageHistory(server.getMessageHistory());
+                //clientMsg1.setMessageHistory(server.getMessageHistory());
+                //clientMsg2.setMessageHistory(server.getMessageHistory());
                 inform(msg, clientMsg1, clientMsg2);
                 break;
             case Message.CLOSE_CONNECTION: 
                 clientMsg1 = new Message(Message.GOODBYE, msg.getUser(), timestamp.getTime(), "Goodbye"  + msg.getUser().getName());
-                clientMsg2 = new Message(Message.USER_JOINED, msg.getUser(), timestamp.getTime(), msg.getUser() + " has left the chat");
+                clientMsg2 = new Message(Message.USER_LEFT, msg.getUser(), timestamp.getTime(), msg.getUser() + " has left the chat");
                 inform(msg, clientMsg1, clientMsg2);
                 server.getClientMap().remove(msg.getUser().getUUID());
                 break;
@@ -88,15 +90,18 @@ public class ClientThread implements Runnable {
 
     public void inform(Message msg, Message clientMsg1, Message clientMsg2) {       
         server.getClientMap().forEach((uuid, clientThread) -> {
+            System.out.println("client thread:\t" + clientThread);
+            System.out.println("returned output stream:\t" + clientThread.getOutputStream());
             ObjectOutputStream clientOutput = clientThread.getOutputStream();
-
+            System.out.println("output stream:\t" + clientOutput);
             try {
-                if (uuid.equals(msg.getUser().getUUID()) && clientMsg1 != null) {
+                if (uuid.equals(msg.getUser().getUUID())) {
+                    System.out.println("sending message to broadcaster");
                     clientOutput.writeObject(clientMsg1);
                 } else {
+                    System.out.println("sending message to other");
                     clientOutput.writeObject(clientMsg2);
                 }
-                
                 clientOutput.flush();
                 clientOutput.reset();
             } catch (IOException ex) {
