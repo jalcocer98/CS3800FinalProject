@@ -1,9 +1,11 @@
+//package CS3800FinalProject;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
+import CS3800FinalProject.Message;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,8 +25,7 @@ public class ChatServer {
 
     private int serverPort;
     private Map<String, ClientThread> clientMap = null;
-    private ArrayList<Message> messageHistory = null;
-//    private List<ClientThread> clients;
+    private List<Message> messageHistory = null;
 
     public static void main(String[] args){
         ChatServer server = new ChatServer(portNumber);
@@ -34,10 +35,6 @@ public class ChatServer {
     public ChatServer(int portNumber){
         this.serverPort = portNumber;
     }
-
-//    public List<ClientThread> getClients(){
-//        return clients;
-//    }
     
     public Map<String, ClientThread> getClientMap(){
         return clientMap;
@@ -48,8 +45,8 @@ public class ChatServer {
     }
 
     private void startServer(){
-//        clients = new ArrayList<ClientThread>();
         clientMap = new HashMap();
+        messageHistory = new ArrayList<Message>();
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(serverPort);
@@ -68,7 +65,6 @@ public class ChatServer {
                 ClientThread client = new ClientThread(this, socket);
                 Thread thread = new Thread(client);
                 thread.start();
-                
             } catch (IOException ex){
                 System.out.println("Accept failed on : "+serverPort);
             }

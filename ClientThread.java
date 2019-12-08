@@ -1,3 +1,4 @@
+//package CS3800FinalProject;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -55,40 +56,39 @@ public class ClientThread implements Runnable {
     }
     
     public void clientAction(Message msg) {
-        Message clientMsg1 = null;
-        Message clientMsg2 = null;
+        Message toSender = null;
+        Message toOthers = null;
         
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         
         switch(msg.getType()) {
             case Message.NEW_CONNECTION:
-                clientMsg1 = new Message(Message.WELCOME, msg.getUser(), timestamp.getTime(), "Welcome " + msg.getUser().getName());
+                toSender = new Message(Message.WELCOME, msg.getUser(), timestamp.getTime(), "Welcome " + msg.getUser().getName());
                 server.getClientMap().put(msg.getUser().getUUID(), this);
-                clientMsg2 = new Message(Message.USER_JOINED, msg.getUser(), timestamp.getTime(), msg.getUser() + " has joined the chat");
-                // clientMsg1.setMessageHistory(server.getMessageHistory());
-                // clientMsg2.setMessageHistory(server.getMessageHistory());
-                inform(msg,clientMsg1, clientMsg2);
+                toOthers = new Message(Message.USER_JOINED, msg.getUser(), timestamp.getTime(), msg.getUser() + " has joined the chat");
+                inform(msg,toSender, toOthers);
                 break;
             case Message.BROADCAST_MSG:
                 System.out.println("broadcasting message");
-                //server.getMessageHistory().add(msg);
-                //sortMessages(server.getMessageHistory());
-                clientMsg1 = new Message(Message.NEW_MESSAGE, msg.getUser(), timestamp.getTime(), msg.getPayLoad());
-                clientMsg2 = new Message(Message.NEW_MESSAGE, msg.getUser(), timestamp.getTime(), msg.getPayLoad());
-                //clientMsg1.setMessageHistory(server.getMessageHistory());
-                //clientMsg2.setMessageHistory(server.getMessageHistory());
-                inform(msg, clientMsg1, clientMsg2);
+                toSender = new Message(Message.NEW_MESSAGE, msg.getUser(), timestamp.getTime(), msg.getPayLoad());
+                toOthers = new Message(Message.NEW_MESSAGE, msg.getUser(), timestamp.getTime(), msg.getPayLoad());
+                server.getMessageHistory().add(msg);
+                toSender.setMessageHistory(server.getMessageHistory());
+                toOthers.setMessageHistory(server.getMessageHistory());
+                inform(msg, toSender, toOthers);
                 break;
             case Message.CLOSE_CONNECTION: 
-                clientMsg1 = new Message(Message.GOODBYE, msg.getUser(), timestamp.getTime(), "Goodbye"  + msg.getUser().getName());
-                clientMsg2 = new Message(Message.USER_LEFT, msg.getUser(), timestamp.getTime(), msg.getUser() + " has left the chat");
-                inform(msg, clientMsg1, clientMsg2);
+                toSender = new Message(Message.GOODBYE, msg.getUser(), timestamp.getTime(), "Goodbye"  + msg.getUser().getName());
                 server.getClientMap().remove(msg.getUser().getUUID());
+                toOthers = new Message(Message.USER_LEFT, msg.getUser(), timestamp.getTime(), msg.getUser() + " has left the chat");
+                server.getMessageHistory().add(toOthers);
+                toOthers.setMessageHistory(server.getMessageHistory());
+                inform(msg, toSender, toOthers);
                 break;
         }
     }
 
-    public void inform(Message msg, Message clientMsg1, Message clientMsg2) {       
+    public synchronized void inform(Message msg, Message clientMsg1, Message clientMsg2) {       
         server.getClientMap().forEach((uuid, clientThread) -> {
             System.out.println("client thread:\t" + clientThread);
             System.out.println("returned output stream:\t" + clientThread.getOutputStream());
@@ -110,12 +110,14 @@ public class ClientThread implements Runnable {
         });
     }
     
-    public void sortMessages(List<Message> msgList) {
-        Collections.sort(msgList, new Comparator<Message>() {
-             @Override
-             public int compare(Message o1, Message o2) {
-                 return Long.compare(((Message)o1).getTimestamp(), ((Message)o2).getTimestamp());
-             }
-         });
-    }
+    
+    // I don't think we need this anymore since we have the method as syncrhonized
+//    public void sortMessages(List<Message> msgList) {
+//        Collections.sort(msgList, new Comparator<Message>() {
+//             @Override
+//             public int compare(Message o1, Message o2) {
+//                 return Long.compare(((Message)o1).getTimestamp(), ((Message)o2).getTimestamp());
+//             }
+//         });
+//    }
 }
