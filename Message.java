@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 /**
  *
  * @author Jason
@@ -30,10 +29,10 @@ public class Message implements Serializable {
     private int type;
     private User user = null;
     private String payload = null;
-    private long timestamp;
+    private String timestamp;
     private List<Message> messageHistory = null;
 
-    public Message(int type, User user, long timestamp, String payload) {
+    public Message(int type, User user, String timestamp, String payload) {
         this.type = type;
         this.user = user;
         this.payload = payload;
@@ -64,11 +63,11 @@ public class Message implements Serializable {
         this.payload = payload;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return this.timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

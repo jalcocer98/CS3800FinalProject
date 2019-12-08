@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 
-import CS3800FinalProject.Message;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -61,7 +61,7 @@ public class ChatServer {
         while(true){
             try {
                 Socket socket = serverSocket.accept();
-                System.out.println("accepts : " + socket.getRemoteSocketAddress());
+                //System.out.println("accepts : " + socket.getRemoteSocketAddress());
                 ClientThread client = new ClientThread(this, socket);
                 Thread thread = new Thread(client);
                 thread.start();
