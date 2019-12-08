@@ -47,6 +47,14 @@ public class MessageClient implements ActionListener {
         action.setMnemonic('a');
         menuBar.add(action);
 
+        JMenuItem userInfo = new JMenuItem("User Info");
+        userInfo.setMnemonic('u');
+        userInfo.addActionListener(ae -> {
+            JOptionPane.showMessageDialog(frame, "Username: " + this.user.getName() 
+											+ "\nUUID: " + this.user.getUUID(), "User Info",
+											JOptionPane.INFORMATION_MESSAGE);
+        });
+        action.add(userInfo);
         // JMenuItem seeUsers = new JMenuItem("See Current Users");
         // seeUsers.setMnemonic('s');
         // action.add(seeUsers);
